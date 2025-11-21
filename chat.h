@@ -1,0 +1,18 @@
+
+#ifndef CHAT_HEADER
+#define CHAT_HEADER
+
+typedef struct {
+    void* pid_db; //ptr to shared memory with all pids 
+                  //zero elem is number of pids
+    int pid_fd;
+
+    void* text_db; //ptr to shared memory with text 
+                   //zero elem is number of all records 
+    int text_fd;   //file descriptor of shared memory with text
+
+    pid_t self_pid; 
+    pid_t head_pid; //pid of process which current process was initially connected to
+} ChatInfo;
+
+#endif

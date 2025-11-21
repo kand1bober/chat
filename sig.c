@@ -47,10 +47,10 @@ void receive_msg()
     }
 }
 
-void send_direct_msg(pid_t pid, const char* msg)
+void send_direct_msg(ChatInfo* chat_info, int pid, const char* msg)
 {
     union sigval data;
-    data.sival_ptr = NULL;
+    data.sival_int = chat_info.;
 
     // printf("sending msg to: %d\n", pid);
 
@@ -58,3 +58,6 @@ void send_direct_msg(pid_t pid, const char* msg)
         perror("sigqueue");
     }
 }
+
+
+int count

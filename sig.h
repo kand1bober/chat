@@ -12,10 +12,12 @@
 #include <time.h>
 #include <errno.h>
 
+#include "chat.h"
+
 #ifndef SIG_HEADER
 #define SIG_HEADER
 
-void send_direct_msg(pid_t pid, const char* msg);
+void send_direct_msg(ChatInfo* chat_info, int pid, const char* msg);
 void receive_msg();
 
 #endif
