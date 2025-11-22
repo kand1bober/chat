@@ -25,4 +25,8 @@ int add_msg_to_text_db(void* text_db, const char* msg);
 
 char* get_msg_from_text_db(void* text_db, int str_num); 
 
+int send_num(int pid, int num);
+
+int get_num();
+
 #endif

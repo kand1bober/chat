@@ -3,6 +3,8 @@
 #define CHAT_HEADER
 
 typedef struct {
+    char* shmem_head_num; //pid of creator of shmem, used to create id for shmem: id = "chat_shmem_<head_pid>"
+
     void* pid_db; //ptr to shared memory with all pids 
                   //zero elem is number of pids
     int pid_fd;

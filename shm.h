@@ -16,7 +16,7 @@ void make_shmem(const char* name, int* ret_fd, void** ret_ptr);
 
 void join_shmem(const char* name, int* ret_fd, void** ret_ptr);
 
-int add_pid_to_db(void* pid_db, int pid);
+void add_pid_to_db(void* pid_db, int pid);
 
 int get_pid_from_db(void* pid_db, int pid_num);
 

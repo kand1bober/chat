@@ -2,10 +2,8 @@
 
 #define DIRECT_MSG SIGRTMIN + 1
 #define ALL_MSG    SIGRTMIN + 2
-#define NO_MSG 0
-#define MSG 1
 
-volatile sig_atomic_t msg_state = NO_MSG;
+#define DIRECT_NUM SIGRTMIN + 3 
 
 void direct_msg_handler()
 {
@@ -96,4 +94,53 @@ char* get_msg_from_text_db(void* text_db, int str_num)
     }
     
     return pos;
+}
+
+//send number from process to process 
+int send_num(int pid, int num)
+{
+    union sigval data;
+    data.sival_int = num;
+
+    if (sigqueue(pid, DIRECT_MSG, data) == -1) {
+        perror("sigqueue");
+    }
+}
+
+//send number from signal 
+int get_num()
+{
+    //set custom handler
+    struct sigaction sa = {
+        .sa_sigaction = direct_msg_handler, 
+        .sa_flags = SA_SIGINFO
+    };
+    sigaction(DIRECT_NUM, &sa, NULL);
+
+    //create mask
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, DIRECT_NUM);
+
+    // block signal from mask
+    sigprocmask(SIG_BLOCK, &set, NULL);
+
+    //receive msg
+    siginfo_t info;
+    struct timespec time = {.tv_sec = 0, .tv_nsec = 5000}; //TODO: попробовать поставиить 0
+    int error = sigtimedwait(&set, &info, &time);
+    if (error < 0) {
+        if (errno != EAGAIN) {
+            perror("sigtimedwait");
+            exit(1);
+        }
+        else {
+            printf("no number is received, quiting\n");
+            exit(1);
+        }
+    }
+    else {
+        printf("number received: %s\n", info.si_value.sival_int);
+        return  info.si_value.sival_int;
+    }
 }
