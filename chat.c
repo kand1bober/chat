@@ -14,7 +14,6 @@
 #include "shm.h"
 
 void user(ChatInfo* chat_info);
-void clean_stdin();
 
 int main(int argc, char* argv[])
 {
@@ -29,12 +28,15 @@ int main(int argc, char* argv[])
     if (!strcmp(input, "chat")) {
         if (to_join_pid == -1) {
             chat_info.head_pid = 0;
-            make_shmem(pid_db_name, 4096, &chat_info.text_fd, &chat_info.text_db);
-            make_shmem(text_db_name, 4096, &chat_info.pid_fd, &chat_info.pid_db);
+            make_shmem(text_db_name, &chat_info.text_fd, &chat_info.text_db);
+            make_shmem(pid_db_name, &chat_info.pid_fd, &chat_info.pid_db);
+            add_pid_to_db(chat_info.pid_db, chat_info.self_pid);
             user(&chat_info);
         }
         else if (to_join_pid >= 0) {
-            join_chat(&chat_info, to_join_pid);
+            join_shmem(text_db_name, &chat_info.text_fd, &chat_info.text_db);
+            join_shmem(pid_db_name, &chat_info.pid_fd, &chat_info.pid_db);
+            add_pid_to_db(chat_info.pid_db, chat_info.self_pid);
             user(&chat_info);
         }
         else {
@@ -60,14 +62,15 @@ void user(ChatInfo* chat_info)
     pid_t msg_receiver; 
 
     while (1) { //cycle of reading stdin
-        receive_msg();
+        receive_msg(chat_info);
+        show_all_pids(chat_info);
 
         scanf("%s", input);
         if (!strcmp(input, "tell")) {
             scanf("%d", &msg_receiver);            
             scanf("%s", msg);
 
-            send_direct_msg(&chat_info, msg_receiver, msg);  
+            send_direct_msg(chat_info, msg_receiver, msg);  
         }
         else if (!strcmp(input, "say")) {
             //всем
@@ -80,14 +83,4 @@ void user(ChatInfo* chat_info)
             exit(0);
         }
     }
-}
-
-void clean_stdin()
-{
-    int c;
-    do {
-        c = getchar();
-        // printf("%d\n", c);
-    }
-    while (c != '\n');
 }

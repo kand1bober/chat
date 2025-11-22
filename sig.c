@@ -12,7 +12,7 @@ void direct_msg_handler()
     // msg_state = MSG;
 }
 
-void receive_msg()
+void receive_msg(ChatInfo* chat_info)
 {
     //set custom handler
     struct sigaction sa = {
@@ -43,21 +43,57 @@ void receive_msg()
         }
     }
     else {
-        printf("msg received\n");
+        printf("msg received: %s\n", get_msg_from_text_db(chat_info->text_db, info.si_value.sival_int));
     }
 }
 
 void send_direct_msg(ChatInfo* chat_info, int pid, const char* msg)
 {
     union sigval data;
-    data.sival_int = chat_info.;
-
-    // printf("sending msg to: %d\n", pid);
+    data.sival_int = add_msg_to_text_db(chat_info->text_db, msg); //send number of msg in text_db
 
     if (sigqueue(pid, DIRECT_MSG, data) == -1) {
         perror("sigqueue");
     }
 }
 
+int add_msg_to_text_db(void* text_db, const char* msg)
+{
+    int num;
+    memcpy(&num, text_db, sizeof(int));
 
-int count
+    char* pos = ((char*)text_db + sizeof(int));
+    int count = 0;
+    while (count < num) {
+        if (*pos == 0) {
+            count++;
+        }
+        pos++;
+    }
+    memcpy(pos, msg, strlen(msg) + 1); //add new str
+
+    count++; 
+    memcpy(text_db, &count, sizeof(int)); //increase str counter
+    return count; 
+}
+
+char* get_msg_from_text_db(void* text_db, int str_num)
+{
+    int num;
+    memcpy(&num, text_db, sizeof(int));
+    if (str_num > num) {
+        printf("invalid nuber of string to take from text data base\n");
+        exit(1);
+    }
+
+    char* pos = ((char*)text_db + sizeof(int));
+    int count = 0;
+    while (count < (str_num - 1)) {
+        if (*pos == 0) { 
+            count++;
+        }
+        pos++;
+    }
+    
+    return pos;
+}

@@ -18,6 +18,11 @@
 #define SIG_HEADER
 
 void send_direct_msg(ChatInfo* chat_info, int pid, const char* msg);
-void receive_msg();
+
+void receive_msg(ChatInfo* chat_info);
+
+int add_msg_to_text_db(void* text_db, const char* msg);
+
+char* get_msg_from_text_db(void* text_db, int str_num); 
 
 #endif

@@ -8,7 +8,7 @@ typedef struct {
     int pid_fd;
 
     void* text_db; //ptr to shared memory with text 
-                   //zero elem is number of all records 
+                   //first 4 bytes is integer number of all records 
     int text_fd;   //file descriptor of shared memory with text
 
     pid_t self_pid; 
