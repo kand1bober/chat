@@ -1,19 +1,7 @@
 #include "sig.h"
 
-void direct_msg_handler()
-{
-    // msg_state = MSG;
-}
-
 void receive_msg(ChatInfo* chat_info)
 {
-    //set custom handler
-    struct sigaction sa = {
-        .sa_sigaction = direct_msg_handler, 
-        .sa_flags = SA_SIGINFO
-    };
-    sigaction(DIRECT_MSG, &sa, NULL);
-
     //create mask
     sigset_t set;
     sigemptyset(&set);
@@ -89,53 +77,4 @@ char* get_msg_from_text_db(void* text_db, int str_num)
     }
     
     return pos;
-}
-
-//send number from process to process 
-int send_num(int pid, int num)
-{
-    union sigval data;
-    data.sival_int = num;
-
-    if (sigqueue(pid, DIRECT_MSG, data) == -1) {
-        perror("sigqueue");
-    }
-}
-
-//send number from signal 
-int get_num()
-{
-    //set custom handler
-    struct sigaction sa = {
-        .sa_sigaction = direct_msg_handler, 
-        .sa_flags = SA_SIGINFO
-    };
-    sigaction(DIRECT_NUM, &sa, NULL);
-
-    //create mask
-    sigset_t set;
-    sigemptyset(&set);
-    sigaddset(&set, DIRECT_NUM);
-
-    // block signal from mask
-    sigprocmask(SIG_BLOCK, &set, NULL);
-
-    //receive msg
-    siginfo_t info;
-    struct timespec time = {.tv_sec = 0, .tv_nsec = 5000}; //TODO: попробовать поставиить 0
-    int error = sigtimedwait(&set, &info, &time);
-    if (error < 0) {
-        if (errno != EAGAIN) {
-            perror("sigtimedwait");
-            exit(1);
-        }
-        else {
-            printf("no number is received, quiting\n");
-            exit(1);
-        }
-    }
-    else {
-        printf("number received: %d\n", info.si_value.sival_int);
-        return  info.si_value.sival_int;
-    }
 }

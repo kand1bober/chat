@@ -18,9 +18,8 @@
 #define SIG_HEADER
 
 #define DIRECT_MSG SIGRTMIN + 1
-#define ALL_MSG    SIGRTMIN + 2
-
-#define DIRECT_NUM SIGRTMIN + 3 
+#define JOIN_REQUEST SIGRTMIN + 3
+#define JOIN_APPROVAL SIGRTMIN + 4
 
 void send_direct_msg(ChatInfo* chat_info, int pid, const char* msg);
 
@@ -29,9 +28,5 @@ void receive_msg(ChatInfo* chat_info);
 int add_msg_to_text_db(void* text_db, const char* msg);
 
 char* get_msg_from_text_db(void* text_db, int str_num); 
-
-int send_num(int pid, int num);
-
-int get_num();
 
 #endif
