@@ -1,5 +1,8 @@
 # Chat
 
+### build
+    gcc chat.c sig.c shm.c thread.c -o <name>
+
 ### Functions:
 
 #### chat 
