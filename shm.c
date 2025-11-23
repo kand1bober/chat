@@ -84,7 +84,7 @@ void quit_chat(ChatInfo* chat_info)
     finish_receive_join_request(chat_info);
     finish_receive_msgs(chat_info);
 
-    if (!users_num) { //if current user is last in chat
+    if (users_num == 1) { //if current user is last in chat
         shm_unlink(chat_info->text_db_name);
         shm_unlink(chat_info->pid_db_name);
     }
