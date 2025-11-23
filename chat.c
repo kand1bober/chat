@@ -10,7 +10,8 @@
 #include <spawn.h>
 #include <stdbool.h>
 
-#include "sig.h"
+#include "chat.h"
+#include "thread.h"
 #include "shm.h"
 
 void user(ChatInfo* chat_info);
@@ -61,8 +62,10 @@ void user(ChatInfo* chat_info)
     char msg[128];
     pid_t msg_receiver; 
 
+    pthread_t receiver_tid; //separated thread for asyncronous msg receiving
+    start_receive_msg(chat_info, &receiver_tid);
+
     while (1) { //cycle of reading stdin
-        receive_msg(chat_info);
         show_all_pids(chat_info);
 
         scanf("%s", input);
@@ -76,6 +79,7 @@ void user(ChatInfo* chat_info)
             //всем
         }
         else if (!strcmp(input, "bye")) {
+            finish_receive_msgs(receiver_tid);
             return;
         }
         else {

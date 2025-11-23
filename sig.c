@@ -37,7 +37,7 @@ void receive_msg(ChatInfo* chat_info)
             exit(1);
         }
         else {
-            printf("no msg\n");
+            // printf("no msg\n");
         }
     }
     else {
@@ -140,7 +140,7 @@ int get_num()
         }
     }
     else {
-        printf("number received: %s\n", info.si_value.sival_int);
+        printf("number received: %d\n", info.si_value.sival_int);
         return  info.si_value.sival_int;
     }
 }
