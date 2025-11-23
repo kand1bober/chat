@@ -1,10 +1,5 @@
 #include "sig.h"
 
-#define DIRECT_MSG SIGRTMIN + 1
-#define ALL_MSG    SIGRTMIN + 2
-
-#define DIRECT_NUM SIGRTMIN + 3 
-
 void direct_msg_handler()
 {
     // msg_state = MSG;
@@ -24,12 +19,9 @@ void receive_msg(ChatInfo* chat_info)
     sigemptyset(&set);
     sigaddset(&set, DIRECT_MSG);
 
-    // block signal from mask
-    sigprocmask(SIG_BLOCK, &set, NULL);
-
     //receive msg
     siginfo_t info;
-    struct timespec time = {.tv_sec = 0, .tv_nsec = 5000};
+    struct timespec time = {.tv_sec = 1, .tv_nsec = 0};
     int error = sigtimedwait(&set, &info, &time);
     if (error < 0) {
         if (errno != EAGAIN) {
@@ -37,11 +29,13 @@ void receive_msg(ChatInfo* chat_info)
             exit(1);
         }
         else {
-            // printf("no msg\n");
+            // printf(".");
+            // fflush(stdout);
         }
     }
     else {
-        printf("msg received: %s\n", get_msg_from_text_db(chat_info->text_db, info.si_value.sival_int));
+        printf("msg received: '%s'\n", get_msg_from_text_db(chat_info->text_db, info.si_value.sival_int));
+        fflush(stdout);
     }
 }
 
@@ -49,6 +43,7 @@ void send_direct_msg(ChatInfo* chat_info, int pid, const char* msg)
 {
     union sigval data;
     data.sival_int = add_msg_to_text_db(chat_info->text_db, msg); //send number of msg in text_db
+    // printf("sending msg number: %d\n", data.sival_int);
 
     if (sigqueue(pid, DIRECT_MSG, data) == -1) {
         perror("sigqueue");

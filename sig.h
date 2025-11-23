@@ -17,6 +17,11 @@
 #ifndef SIG_HEADER
 #define SIG_HEADER
 
+#define DIRECT_MSG SIGRTMIN + 1
+#define ALL_MSG    SIGRTMIN + 2
+
+#define DIRECT_NUM SIGRTMIN + 3 
+
 void send_direct_msg(ChatInfo* chat_info, int pid, const char* msg);
 
 void receive_msg(ChatInfo* chat_info);

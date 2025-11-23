@@ -68,7 +68,12 @@ void user(ChatInfo* chat_info)
     while (1) { //cycle of reading stdin
         show_all_pids(chat_info);
 
-        scanf("%s", input);
+        do {
+            errno = 0;
+            scanf("%s", input);
+        }
+        while (errno == EINTR);
+
         if (!strcmp(input, "tell")) {
             scanf("%d", &msg_receiver);            
             scanf("%s", msg);
@@ -83,6 +88,7 @@ void user(ChatInfo* chat_info)
             return;
         }
         else {
+            printf("input: '%s' / %d \n", input, *input);
             printf("error in input\n");
             exit(0);
         }
