@@ -5,6 +5,9 @@
 
 typedef struct {
     int shmem_name_num; //pid of creator of shmem, used to create id for shmem: id = "chat_shmem_<head_pid>"
+    
+    char text_db_name[128];
+    char pid_db_name[128];
 
     void* pid_db; //ptr to shared memory with all pids 
                   //zero elem is number of pids
@@ -18,6 +21,7 @@ typedef struct {
     pid_t head_pid; //pid of process which current process was initially connected to
 
     pthread_t join_request_receiver; //thread, that receives join requests, works till the 'bye' function
+    pthread_t msg_receiver_tid; //separated thread for asyncronous msg receiving
 } ChatInfo;
 
 void user(ChatInfo* chat_info);

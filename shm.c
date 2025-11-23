@@ -1,4 +1,5 @@
 #include "shm.h"
+#include "thread.h"
 
 #define SHMEM_SIZE 4096
 
@@ -62,8 +63,29 @@ void show_all_pids(ChatInfo* chat_info)
     int db_size;
     memcpy(&db_size, chat_info->pid_db, sizeof(int));
 
-    printf("All pids:\n");
+    printf("list of user pids:\n");
     for (int i = 0; i < db_size; i++) {
         printf("%2d: %d\n", i, get_pid_from_db(chat_info->pid_db, i));
+    }
+    printf("\n");
+}
+
+void quit_chat(ChatInfo* chat_info)
+{
+    int users_num;
+    memcpy(&users_num, chat_info->pid_db, sizeof(int));
+    
+    munmap(chat_info->text_db, SHMEM_SIZE);
+    close(chat_info->text_fd);    
+
+    munmap(chat_info->pid_db, SHMEM_SIZE);
+    close(chat_info->pid_fd);
+
+    finish_receive_join_request(chat_info);
+    finish_receive_msgs(chat_info);
+
+    if (!users_num) { //if current user is last in chat
+        shm_unlink(chat_info->text_db_name);
+        shm_unlink(chat_info->pid_db_name);
     }
 }
