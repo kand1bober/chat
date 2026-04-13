@@ -1,35 +1,79 @@
 # Chat
 
-### build
-    gcc chat.c sig.c shm.c thread.c -o <name>
+Небольшой консольный чат на **C** для Linux, построенный на **POSIX real-time signals**, **shared memory** и **pthread**. Проект позволяет создать чат, подключаться к уже существующему процессу по `pid`, отправлять личные сообщения и рассылать сообщения всем участникам.
 
-### Functions:
+## Возможности
 
-#### chat 
-    create/join chat
+- создание нового чата;
+- подключение к существующему чату по `pid`;
+- просмотр списка участников;
+- отправка личных сообщений;
+- отправка сообщения всем участникам;
+- асинхронный приём сообщений в отдельном потоке.
 
-    using: chat <num>
+## Сборка
 
-    note: if num = -1, new chat will be created
-          if num >= 0, user will be added to chat where user with pid,
-          that is equal to num is present
+```bash
+gcc chat.c sig.c shm.c thread.c -o chat -pthread
+```
 
-#### list 
-    show list of users present in this chat
+## Запуск
 
-    using: list
+Создать новый чат:
 
-#### tell
-    send msg from one user(process) to another
+```bash
+./chat
+chat -1
+```
 
-    using:  tell \<pid\> \<phrase\>  
+Подключиться к уже существующему чату по `pid` одного из участников:
 
-#### say 
-    send msg from one user(process) to every process in the chat, where current process is present
+```bash
+./chat
+chat <pid>
+```
 
-    using:  say \<pid\> \<phrase\>  
+## Команды
 
-#### bye
-    quit chat
+### Показать участников
 
-    using: bye
+```text
+list
+```
+
+### Личное сообщение
+
+```text
+tell <pid> <message>
+```
+
+### Сообщение всем
+
+```text
+say <message>
+```
+
+### Выход
+
+```text
+bye
+```
+
+## Как это устроено
+
+Проект хранит две области shared memory: одну для базы `pid` участников и одну для текстов сообщений. Для асинхронной работы используются отдельные потоки: один принимает обычные сообщения, другой — запросы на подключение новых участников.
+
+## Структура файлов
+
+- `chat.c` — основной цикл программы и пользовательские команды;
+- `sig.c` — отправка и приём сообщений через POSIX-сигналы;
+- `shm.c` — работа с shared memory и списком участников;
+- `thread.c` — фоновые потоки для приёма сообщений и join-запросов;
+- `chat.h`, `sig.h`, `shm.h`, `thread.h` — заголовочные файлы.
+
+## Ограничения
+
+- проект учебный и минималистичный;
+- ввод сообщений реализован довольно просто;
+- участники идентифицируются по `pid`;
+- в коде мало защитных проверок.
